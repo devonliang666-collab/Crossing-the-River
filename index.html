@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crossing the River — NHD 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink:       #0d0b09;
+      --paper:     #f5f0e8;
+      --vermilion: #c8392b;
+      --gold:      #c9951a;
+      --muted:     #8a7f72;
+      --cream:     #faf7f2;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 40%, rgba(200,57,43,0.08) 0%, transparent 70%),
+        linear-gradient(180deg, #f5f0e8 0%, #ede7d8 100%);
+    }
+
+    /* Brushstroke SVG decoration */
+    .brushstroke {
+      position: absolute;
+      top: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(500px, 90vw);
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--vermilion);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2.8rem, 8vw, 6.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      opacity: 0;
+      animation: fadeUp 0.9s 0.4s forwards;
+    }
+
+    .hero-title .zh {
+      display: block;
+      font-size: 0.45em;
+      color: var(--vermilion);
+      letter-spacing: 0.08em;
+      margin-top: 0.3em;
+    }
+
+    .hero-subtitle {
+      margin-top: 1.8rem;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      font-style: italic;
+      color: var(--muted);
+      max-width: 520px;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.6s forwards;
+    }
+
+    .hero-meta {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 0.9s 0.8s forwards;
+    }
+
+    .hero-meta span { border-bottom: 1px solid var(--gold); padding-bottom: 2px; }
+
+    .scroll-hint {
+      margin-top: 4rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 1s 1.2s forwards;
+    }
+
+    .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--vermilion), transparent);
+      animation: grow 1.5s 1.5s ease-in-out infinite alternate;
+    }
+
+    /* ── SECTION BASE ── */
+    section {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--vermilion);
+      margin-bottom: 1.2rem;
+    }
+
+    h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 700;
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+      line-height: 1.2;
+      margin-bottom: 1.6rem;
+    }
+
+    p { margin-bottom: 1.2rem; color: #2a2520; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+      position: relative; z-index: 1;
+    }
+
+    /* ── STAT BAND ── */
+    .stat-band {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 4rem 2rem;
+      position: relative; z-index: 1;
+    }
+
+    .stat-grid {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2.5rem;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 900;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #b0a89a;
+      margin-top: 0.6rem;
+    }
+
+    /* ── QUOTE ── */
+    .pull-quote {
+      border-left: 3px solid var(--vermilion);
+      padding: 1.2rem 2rem;
+      margin: 2.5rem 0;
+      background: rgba(200,57,43,0.04);
+      font-style: italic;
+      font-size: 1.25rem;
+      color: #3a302a;
+    }
+
+    .pull-quote cite {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-style: normal;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-top: 0.8rem;
+    }
+
+    /* ── PHOTO GALLERY ── */
+    .gallery-section {
+      background: var(--cream);
+      position: relative; z-index: 1;
+      padding: 5rem 2rem;
+    }
+
+    .gallery-inner { max-width: 960px; margin: 0 auto; }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto;
+      gap: 14px;
+      margin-top: 2.5rem;
+    }
+
+    .gallery-grid figure {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gallery-grid figure img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s ease, filter 0.4s ease;
+      filter: saturate(0.85) contrast(1.05);
+    }
+
+    .gallery-grid figure:hover img {
+      transform: scale(1.04);
+      filter: saturate(1.1) contrast(1.05);
+    }
+
+    .gallery-grid figure figcaption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(13,11,9,0.75), transparent);
+      color: #ede7d8;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 1.2rem 0.8rem 0.7rem;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .gallery-grid figure:hover figcaption {
+      opacity: 1; transform: translateY(0);
+    }
+
+    /* Layout slots */
+    .g1 { grid-column: 1 / 8; grid-row: 1; aspect-ratio: 4/3; }
+    .g2 { grid-column: 8 / 13; grid-row: 1; aspect-ratio: 3/4; }
+    .g3 { grid-column: 1 / 5; grid-row: 2; aspect-ratio: 1; }
+    .g4 { grid-column: 5 / 9; grid-row: 2; aspect-ratio: 1; }
+    .g5 { grid-column: 9 / 13; grid-row: 2; aspect-ratio: 1; }
+    .g6 { grid-column: 1 / 7; grid-row: 3; aspect-ratio: 16/9; }
+    .g7 { grid-column: 7 / 13; grid-row: 3; aspect-ratio: 16/9; }
+
+    /* ── SOURCES ACCORDION ── */
+    .sources-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+      position: relative; z-index: 1;
+    }
+
+    .source-category { margin-bottom: 2rem; }
+
+    .source-category summary {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #d5ccbf;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--vermilion);
+    }
+
+    .source-category summary::after {
+      content: '+';
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+
+    .source-category[open] summary::after {
+      transform: rotate(45deg);
+    }
+
+    .source-list {
+      padding-top: 1.2rem;
+    }
+
+    .source-item {
+      padding: 0.9rem 0;
+      border-bottom: 1px solid #ede7d8;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .source-item strong { display: block; margin-bottom: 0.2rem; font-style: italic; }
+    .source-item a { color: var(--vermilion); text-decoration: none; word-break: break-all; font-family: 'Space Mono', monospace; font-size: 0.7rem; }
+    .source-item a:hover { text-decoration: underline; }
+    .source-note { color: var(--muted); margin-top: 0.4rem; font-size: 0.85rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      color: #8a7f72;
+      text-align: center;
+      padding: 3rem 2rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      position: relative; z-index: 1;
+    }
+
+    footer .footer-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.3rem;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes grow {
+      from { transform: scaleY(0.5); }
+      to   { transform: scaleY(1); }
+    }
+
+    /* ── OBSERVE FADE ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .gallery-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .g1, .g2, .g3, .g4, .g5, .g6, .g7 {
+        grid-column: auto;
+        grid-row: auto;
+        aspect-ratio: 4/3;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── HERO ── -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+
+    <svg class="brushstroke" viewBox="0 0 500 80" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 60 Q100 10 200 45 Q320 80 420 20 Q460 10 490 30" stroke="#c8392b" stroke-width="18" fill="none" stroke-linecap="round" opacity="0.9"/>
+    </svg>
+
+    <p class="hero-eyebrow">National History Day · California State · 2026 · Senior Group Performance</p>
+
+    <h1 class="hero-title">
+      Crossing the River
+      <span class="zh">摸着石头过河</span>
+    </h1>
+
+    <p class="hero-subtitle">China's Gamble on Reform, 1978 — a performance in three scenes</p>
+
+    <div class="hero-meta">
+      <span>Devon J. Liang</span>
+      <span>Eric Gan</span>
+      <span>Sacramento, CA · May 1–3, 2026</span>
+    </div>
+
+    <div class="scroll-hint">Scroll</div>
+  </header>
+
+  <!-- ── ABOUT ── -->
+  <section class="reveal">
+    <p class="section-label">The Project</p>
+    <h2>Why We Built This</h2>
+    <p>
+      As two students from China, we grew up behind the Great Firewall, where information surrounding
+      China's Cultural Revolution and Reform is tightly regulated. Western history classes gave us an
+      intensely critical view — and as is the nature of institutionally told history, it is always
+      self-serving. We took on this project to understand revolution and reform by building a version
+      of the truth ourselves.
+    </p>
+    <p>
+      One of the most heartbreaking discoveries was the scale of suffering endured by common people.
+      Under CCP rule, rural income was 134 yuan a year — roughly $80. Teenagers like us were denied
+      college entrance exams and sent to farm communes under a program the government eventually
+      abandoned. The Great Leap Forward and the Cultural Revolution played out the conflict between
+      Marxist-Leninist ideology and pragmatic utilitarianism, producing suffering regardless of which
+      side won. Despite all of it, some doctrinal policies worked. Such a complex and tragic story felt
+      worth exploring.
+    </p>
+
+    <blockquote class="pull-quote">
+      "It has been almost thirty years since the founding of this country, and there are still people
+      who want to eat. If we do not solve this problem, the peasants will revolt."
+      <cite>— Xiao Donglian, quoted in Scene 1</cite>
+    </blockquote>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── STATS ── -->
+  <div class="stat-band">
+    <div class="stat-grid">
+      <div>
+        <div class="stat-num">134</div>
+        <div class="stat-label">Yuan / year rural income, 1978</div>
+      </div>
+      <div>
+        <div class="stat-num">45M</div>
+        <div class="stat-label">Estimated deaths, Great Leap Forward</div>
+      </div>
+      <div>
+        <div class="stat-num">63→10%</div>
+        <div class="stat-label">Poverty rate 1981 → 2004</div>
+      </div>
+      <div>
+        <div class="stat-num">17M</div>
+        <div class="stat-label">Youth sent to farm communes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PERFORMANCE ── -->
+  <section class="reveal">
+    <p class="section-label">The Performance</p>
+    <h2>Ideology on Trial</h2>
+    <p>
+      We chose the performance format because the history spans three decades with the same two
+      characters — a Reform Official and a Conservative Official — whose debate never fully
+      resolves. We wanted to explore how there was no clear right or wrong: that policy was driven
+      by ideological dogma or a desire to avoid past mistakes.
+    </p>
+    <p>
+      Both characters come from the historical record. Everything they say derives from actual
+      speeches and debates. From our initial script, we learned to cut anachronisms: <em>"GDP growth"</em>
+      became grain output and rural incomes; <em>"meritocracy"</em> was removed because the term wasn't
+      coined until 1958.
+    </p>
+    <p>
+      Barry Naughton's research surprised us — we assumed Deng had a clear plan, but Naughton argues
+      he was more of a politician than planner. That reframing changed Scene 2 from a confident reformist
+      to one justifying policies by results. Shenzhen grew from 30,000 to a global city. The reforms
+      succeeded — and yet: Wei Jingsheng served eighteen years in prison. Workers who built Shenzhen
+      were denied income and permission to live there.
+    </p>
+
+    <blockquote class="pull-quote">
+      Reform without political freedom produces extraordinary prosperity and unresolved injustice
+      simultaneously. All progress has a price, and who pays it is this performance's argument.
+      <cite>— Process Paper</cite>
+    </blockquote>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── GALLERY ── -->
+  <div class="gallery-section">
+    <div class="gallery-inner">
+      <p class="section-label">At the Competition</p>
+      <h2>Sacramento, May 2026</h2>
+
+      <div class="gallery-grid">
+        <figure class="g1">
+          <img src="b85479c2012c197afb0adab590fd965c.jpg" alt="Devon and Eric with the NHD bear mascot" />
+          <figcaption>With the NHD California mascot</figcaption>
+        </figure>
+        <figure class="g2">
+          <img src="dc5d9adbce3e98a8ed6e1cc88a3ac87b.jpg" alt="Devon at the NHD California banner" />
+          <figcaption>Devon at the state competition</figcaption>
+        </figure>
+        <figure class="g3">
+          <img src="44ad16ab65da967595d1f0474791c4f3.jpg" alt="Participant badges for Eric Gan and Devon Liang" />
+          <figcaption>Group Performance, Senior Division</figcaption>
+        </figure>
+        <figure class="g4">
+          <img src="d384c594060bfd93132c87115736a5ff.jpg" alt="Student check-in area" />
+          <figcaption>Check-in day, Sacramento</figcaption>
+        </figure>
+        <figure class="g5">
+          <img src="942b269deae02fe3b505cdd7586ba6ca.jpg" alt="Devon with the bear mascot indoors" />
+          <figcaption>Devon with Yosemite bear</figcaption>
+        </figure>
+        <figure class="g6">
+          <img src="eba14094e714add9bf8211ebb86fff23.jpg" alt="Voting for 2027 NHD theme" />
+          <figcaption>Voting for the 2027 theme</figcaption>
+        </figure>
+        <figure class="g7">
+          <img src="2ba9c5a324376814b8e65a5fef0f9b19.jpg" alt="Certificate of Achievement" />
+          <figcaption>Certificate of Achievement — Devon J. Liang</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BIBLIOGRAPHY ── -->
+  <div class="sources-section reveal">
+    <p class="section-label">Research</p>
+    <h2>Annotated Bibliography</h2>
+    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:2rem;">
+      Click a category to expand sources.
+    </p>
+
+    <details class="source-category">
+      <summary>Primary Sources</summary>
+      <div class="source-list">
+
+        <div class="source-item">
+          <strong>Chinese Grain Ration Coupons (Liangpiao), 1970s</strong>
+          National Museum of American History, Smithsonian Institution.
+          <a href="https://americanhistory.si.edu/collections/object/nmah_1940120" target="_blank">americanhistory.si.edu</a>
+          <p class="source-note">Supports the Reform Official's poverty argument in Scene 1 — 134 yuan per year, rationed food, survival rather than prosperity.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>People's Commune Organization, China, 1958</strong>
+          Asia for Educators, Columbia University.
+          <a href="https://afe.easia.columbia.edu/special/china_1950_commune.htm" target="_blank">afe.easia.columbia.edu</a>
+          <p class="source-note">Documents the commune system and supports the Conservative official's defense of collective equality in Scene 1.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>1978 Yearly Calendar from Wuhan Tuberculosis Hospital</strong>
+          National Library of Medicine, NIH.
+          <a href="https://www.nlm.nih.gov/hmd/topics/chinese-posters/poster-communicable_101555728-sm.html" target="_blank">nlm.nih.gov</a>
+          <p class="source-note">Visual context for the Conservative official's barefoot doctor argument in Scene 1.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Deng Xiaoping — "Emancipate the Mind, Seek Truth from Facts"</strong>
+          Speech, Central Working Conference, December 13, 1978.
+          <a href="https://www.marxists.org/reference/archive/deng-xiaoping/1978/110.htm" target="_blank">marxists.org</a>
+          <p class="source-note">Gave us the actual language Deng used to justify departing from Maoist orthodoxy. Supports Scene 2.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Hua Guofeng — Speech at the CCP Central Work Conference</strong>
+          Wilson Center Digital Archive, translated by Caixia Lu.
+          <a href="http://digitalarchive.wilsoncenter.org/document/121690" target="_blank">digitalarchive.wilsoncenter.org</a>
+          <p class="source-note">Hua directly addresses the Two Whatevers policy and concedes its limitations — the Conservative's doctrine made concrete.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Mao Zedong — Quotations from Chairman Mao Tse-Tung</strong>
+          Peking: Foreign Languages Press, 1966.
+          <a href="https://www.marxists.org/reference/archive/mao/works/red-book/ch23.htm" target="_blank">marxists.org</a>
+          <p class="source-note">The authoritative ideological source distributed to hundreds of millions of Chinese citizens.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Wei Jingsheng — "The Fifth Modernization: Democracy"</strong>
+          Democracy Wall poster, December 5, 1978.
+          <a href="https://afe.easia.columbia.edu/ps/cup/wei_jingsheng_fifth_modernization.pdf" target="_blank">afe.easia.columbia.edu</a>
+          <p class="source-note">Posted the same week Deng's reforms were formalized. Deng had him arrested; Wei served eighteen years. Named directly in Scene 2.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Xiao Donglian — "On Reform and Opening Origins"</strong>
+          <a href="https://www.robertsuettinger.com/wp-content/uploads/2024/10/Chapter-8-FN-001-Xiao-Donglian-on-Reform-and-Opening-Origins.pdf" target="_blank">robertsuettinger.com</a>
+          <p class="source-note">Provided the direct quote used in Scene 1 about peasants and revolt, giving urgency to reform.</p>
+        </div>
+
+      </div>
+    </details>
+
+    <details class="source-category">
+      <summary>Secondary Sources</summary>
+      <div class="source-list">
+
+        <div class="source-item">
+          <strong>Andreas, Joel — "The Structure of Charismatic Mobilization"</strong>
+          American Sociological Review, vol. 72, no. 3, 2007.
+          <a href="https://doi.org/10.1177/000312240707200306" target="_blank">doi.org</a>
+          <p class="source-note">Documents the collapse of Chinese higher education during the Cultural Revolution. Supported the Conservative's gaokao defense.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Chow, Gregory C. — "China's Economic Transformation"</strong>
+          China's 40 Years of Reform and Development, ANU Press, 2018.
+          <a href="https://www.jstor.org/stable/j.ctv5cgbnk.14" target="_blank">jstor.org</a>
+          <p class="source-note">Argues reform was made inevitable by the Cultural Revolution's unpopularity; supports our portrayal of Deng as a cautious pragmatist.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Dikötter, Frank — Mao's Great Famine</strong>
+          Walker & Company, 2010. (Winner, Samuel Johnson Prize)
+          <p class="source-note">Standard scholarly account estimating up to 45 million deaths. Directly supports the prologue's death toll.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Naughton, Barry — "Deng Xiaoping: The Economist"</strong>
+          The China Quarterly, no. 135, 1993.
+          <a href="http://www.jstor.org/stable/654099" target="_blank">jstor.org</a>
+          <p class="source-note">Argues Deng was more politician than planner — changed how we wrote Scene 2 entirely.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Naughton, Barry — The Chinese Economy: Transitions and Growth</strong>
+          MIT Press, 2007.
+          <p class="source-note">Standard Western academic text. Analysis of the dual-track system supports Scene 2's defense of gradual reform.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Vogel, Ezra F. — Deng Xiaoping and the Transformation of China</strong>
+          Harvard University Press, 2011. (Winner, Lionel Gelber Prize)
+          <p class="source-note">The most comprehensive sympathetic scholarly portrait of Deng available in English. Directly supports the Reform Official's arguments.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Weber, Isabella M. — How China Escaped Shock Therapy</strong>
+          Routledge, 2021.
+          <p class="source-note">Shows Chinese decision-makers consciously rejected shock therapy. The phrase "crossing the river by feeling the stones" examined here.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>World Bank — "China Overview," 2023</strong>
+          <a href="https://www.worldbank.org/en/country/china/overview" target="_blank">worldbank.org</a>
+          <p class="source-note">Confirms the 63% to 10% poverty reduction cited in Scene 3.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>London School of Economics — Poverty and Inequality in China</strong>
+          <a href="https://researchonline.lse.ac.uk/id/eprint/6303/1/Poverty_and_Inequality_and_Social_Policy_in_China.pdf" target="_blank">researchonline.lse.ac.uk</a>
+          <p class="source-note">Provided the 134 yuan per year rural income figure that opens Scene 1.</p>
+        </div>
+
+        <div class="source-item">
+          <strong>Zhao, Dingxin — The Power of Tiananmen</strong>
+          University of Chicago Press, 2001.
+          <p class="source-note">Standard analysis of the 1989 protests. Supported the Conservative's argument that opening the economy without political reform created the conditions for Tiananmen.</p>
+        </div>
+
+      </div>
+    </details>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-title">Crossing the River</div>
+    <p>Devon J. Liang &amp; Eric Gan &nbsp;·&nbsp; Group Performance, Senior Division</p>
+    <p style="margin-top:0.4rem;">National History Day — California &nbsp;·&nbsp; Sacramento, May 2026</p>
+  </footer>
+
+  <script>
+    // Intersection Observer for reveal animations
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
